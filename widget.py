@@ -29,6 +29,7 @@ class Widget(QWidget):
     setpoint = 30
     dt = 0.2
     current_time = 0;
+    Heater1_maxpower = 10000;
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -43,7 +44,7 @@ class Widget(QWidget):
         self.ui.verticalLayout.addWidget(self.canvas)
 
         self.heater = Heater()
-        self.pid = PID()
+        self.pid = PID(maxpower=self.Heater1_maxpower)
 
         self.ui.param_C_edit.setText(str(self.heater.C_air))
         self.ui.param_L_edit.setText(str(self.heater.L_air))
@@ -53,6 +54,8 @@ class Widget(QWidget):
         self.ui.pid_P_edit.setText(str(self.pid.kp))
         self.ui.pid_D_edit.setText(str(self.pid.kd))
         self.ui.pid_setPoint_edit.setText(str(self.setpoint))
+
+        self.ui.param_Heater1_power.setText(str(self.Heater1_maxpower))
 
         n_data = 500
         self.xdata = list(range(n_data))
@@ -77,6 +80,8 @@ class Widget(QWidget):
         self.ui.param_Ro_edit.editingFinished.connect(self.update_param)
         self.ui.param_T_edit.editingFinished.connect(self.update_param)
 
+        self.ui.param_Heater1_power.editingFinished.connect(self.update_param)
+
         self.ui.pid_D_edit.editingFinished.connect(self.update_param)
         self.ui.pid_I_edit.editingFinished.connect(self.update_param)
         self.ui.pid_P_edit.editingFinished.connect(self.update_param)
@@ -87,7 +92,7 @@ class Widget(QWidget):
         temp, time = self.compute()
 
         self.temp_y_data = self.temp_y_data[1:] + [temp]
-        self.power_y_data = self.power_y_data[1:] + [self.heater.power / 1000 * 100]
+        self.power_y_data = self.power_y_data[1:] + [self.heater.power / self.Heater1_maxpower * 100]
 
         # Note: we no longer need to clear the axis.
         if len(self._plot_ref) ==0:
@@ -105,6 +110,8 @@ class Widget(QWidget):
         self.heater.Ro_air = float(self.ui.param_Ro_edit.text())
         self.heater.temp_air = float(self.ui.param_T_edit.text())
         self.heater.C_air = float(self.ui.param_C_edit.text())
+
+        Heater1_maxpower = float(self.ui.param_Heater1_power.text())
 
         self.pid.ki = float(self.ui.pid_I_edit.text())
         self.pid.kp = float(self.ui.pid_P_edit.text())

@@ -10,12 +10,14 @@ def constrain(value, min_out, max_out):
 
 class Heater:
     def __init__(self):
-        self.C_heater = 400
-        self.C_air = 0.385
+        self.C_heater = 0.385
+        self.C_air = 1.000
         self.Ro_air = 1.2
-        self.L_air = 1600.0
+        self.L_air = 160.0
         self.temp_air = 20.0
         self.current_temp_air = 20.0
+
+
 
         self.power = 0.0
         self.weight = 1.0
@@ -30,22 +32,8 @@ class Heater:
         self.power = power
         print(f"TEMP AIR: {self.current_temp_air}, POWER: {self.power}")
 
-#        if power == 0:
-##            self.power -= self.C_heater * self.weight * (self.current_temp_air - self.temp_air)
-#            self.current_temp_air -= self.C_heater * self.weight * (self.current_temp_air - self.temp_air) * dt / (self.C_air * self.Ro_air * self.L_air) + self.current_temp_air
-#        if self.power <= 0:
-#            self.power = 0
-
-        deltaT = (self.power + self.C_heater * self.weight * (self.current_temp_air - self.temp_air)) * dt / (self.C_air * self.Ro_air * self.L_air)
-#        if(deltaT == 0):
-#            self.current_temp_air = self.temp_air
-#        else:
+        deltaT = (self.power * dt - self.C_heater * self.weight * (self.current_temp_air - self.temp_air) * dt) / (self.C_air * self.Ro_air * self.L_air)
         self.current_temp_air += deltaT
-
-        #self.current_temp_air =  / (self.C_air * self.Ro_air * self.L_air) + self.current_temp_air
-#        self.current_temp_air +=  self.temp_air
-
-
 
 class PID:
     integral = 0
@@ -54,7 +42,11 @@ class PID:
     ki = 0.06
     kd = 0.1
     minOut = 0
-    maxOut = 10000
+    maxOut = 0
+
+    def __init__ (self,maxpower):
+        self.maxOut = maxpower
+
     def computePID(self, input_t, setpoint, dt):
         err = setpoint - input_t
         integral = constrain(PID.integral + err * dt * self.ki, self.minOut, self.maxOut)
