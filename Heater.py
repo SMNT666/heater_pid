@@ -17,8 +17,6 @@ class Heater:
         self.temp_air = 20.0
         self.current_temp_air = 20.0
 
-
-
         self.power = 0.0
         self.weight = 1.0
 
